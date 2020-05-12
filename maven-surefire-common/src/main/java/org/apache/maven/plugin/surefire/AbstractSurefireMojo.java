@@ -1384,7 +1384,7 @@ public abstract class AbstractSurefireMojo
 
     private File getModuleDescriptor()
     {
-        return new File( getClassesDirectory(), "module-info.class" );
+        return new File( getMainBuildPath(), "module-info.class" );
     }
 
     private boolean canExecuteProviderWithModularPath( Platform platform )
@@ -2621,7 +2621,7 @@ public abstract class AbstractSurefireMojo
         checksum.add( isSkipExec() );
         checksum.add( isSkip() );
         checksum.add( getTestClassesDirectory() );
-        checksum.add( getClassesDirectory() );
+        checksum.add( getMainBuildPath() );
         checksum.add( getClasspathDependencyExcludes() );
         checksum.add( getClasspathDependencyScopeExclude() );
         checksum.add( getAdditionalClasspathElements() );
@@ -2741,7 +2741,7 @@ public abstract class AbstractSurefireMojo
             classpathArtifacts = filterArtifacts( classpathArtifacts, dependencyFilter );
         }
 
-        return new TestClassPath( classpathArtifacts, getClassesDirectory(),
+        return new TestClassPath( classpathArtifacts, getMainBuildPath(),
                 getTestClassesDirectory(), getAdditionalClasspathElements() );
     }
 

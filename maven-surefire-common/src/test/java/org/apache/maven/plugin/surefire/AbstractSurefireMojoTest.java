@@ -249,7 +249,7 @@ public class AbstractSurefireMojoTest
     {
         AbstractSurefireMojo mojo = spy( this.mojo );
 
-        when( mojo.getClassesDirectory() ).thenReturn( new File( "target" + separatorChar + "classes" ) );
+        when( mojo.getMainBuildPath() ).thenReturn( new File( "target" + separatorChar + "classes" ) );
         when( mojo.getTestClassesDirectory() ).thenReturn( new File( "target" + separatorChar + "test-classes" ) );
         when( mojo.getClasspathDependencyScopeExclude() ).thenReturn( "runtime" );
         when( mojo.getClasspathDependencyExcludes() ).thenReturn( new String[]{ "g3:a3" } );
@@ -298,7 +298,7 @@ public class AbstractSurefireMojoTest
         TestClassPath cp = invokeMethod( mojo, "generateTestClasspath" );
 
         verifyPrivate( mojo, times( 1 ) ).invoke( "generateTestClasspath" );
-        verify( mojo, times( 1 ) ).getClassesDirectory();
+        verify( mojo, times( 1 ) ).getMainBuildPath();
         verify( mojo, times( 1 ) ).getTestClassesDirectory();
         verify( mojo, times( 3 ) ).getClasspathDependencyScopeExclude();
         verify( mojo, times( 2 ) ).getClasspathDependencyExcludes();
@@ -1901,13 +1901,13 @@ public class AbstractSurefireMojoTest
         }
 
         @Override
-        public File getClassesDirectory()
+        public File getMainBuildPath()
         {
             return null;
         }
 
         @Override
-        public void setClassesDirectory( File classesDirectory )
+        public void setMainBuildPath( File mainBuildPath )
         {
 
         }
