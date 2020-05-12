@@ -90,6 +90,8 @@ import org.apache.maven.toolchain.DefaultToolchain;
 import org.apache.maven.toolchain.Toolchain;
 import org.apache.maven.toolchain.ToolchainManager;
 import org.apache.maven.toolchain.java.DefaultJavaToolChain;
+import org.codehaus.plexus.languages.java.jpms.ResolvePathRequest;
+import org.codehaus.plexus.languages.java.jpms.ResolvePathResult;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.languages.java.jpms.LocationManager;
 import org.codehaus.plexus.languages.java.jpms.ResolvePathsRequest;
@@ -1379,12 +1381,23 @@ public abstract class AbstractSurefireMojo
 
     private boolean existsModuleDescriptor()
     {
-        return getModuleDescriptor().isFile();
+        return getModuleDescriptor() != null;
     }
 
-    private File getModuleDescriptor()
+    private ResolvePathResult getModuleDescriptor()
     {
-        return new File( getMainBuildPath(), "module-info.class" );
+        File mainBuildPath = getMainBuildPath();
+
+        try
+        {
+            // .setJdkHome(  )
+            ResolvePathResult result = getLocationManager().resolvePath( ResolvePathRequest.ofFile( mainBuildPath ) );
+            return result.getModuleNameSource() == null ? null : result;
+        }
+        catch ( Exception e )
+        {
+            return null;
+        }
     }
 
     private boolean canExecuteProviderWithModularPath( Platform platform )
@@ -1960,9 +1973,9 @@ public abstract class AbstractSurefireMojo
     }
 
     private StartupConfiguration newStartupConfigWithModularPath(
-            @Nonnull ClassLoaderConfiguration classLoaderConfiguration, @Nonnull Set<Artifact> providerArtifacts,
-            @Nonnull String providerName, @Nonnull File moduleDescriptor, @Nonnull DefaultScanResult scanResult,
-            @Nonnull String javaHome, @Nonnull TestClassPath testClasspathWrapper )
+        @Nonnull ClassLoaderConfiguration classLoaderConfiguration, @Nonnull Set<Artifact> providerArtifacts,
+        @Nonnull String providerName, @Nonnull ResolvePathResult moduleDescriptor,
+        @Nonnull DefaultScanResult scanResult, @Nonnull String javaHome, @Nonnull TestClassPath testClasspathWrapper )
             throws IOException
     {
         Classpath testClasspath = testClasspathWrapper.toClasspath();
@@ -1975,7 +1988,7 @@ public abstract class AbstractSurefireMojo
 
         ResolvePathsRequest<String> req = ResolvePathsRequest.ofStrings( testClasspath.getClassPath() )
                 .setJdkHome( javaHome )
-                .setMainModuleDescriptor( moduleDescriptor.getAbsolutePath() );
+                .setModuleDescriptor( moduleDescriptor.getModuleDescriptor() );
 
         ResolvePathsResult<String> result = getLocationManager().resolvePaths( req );
         for ( Entry<String, Exception> entry : result.getPathExceptions().entrySet() )
